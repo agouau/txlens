@@ -4,9 +4,9 @@
 
 One of the hardest parts of an advanced persistent threat (APT) is realizing that your computer has been compromised in the first place. An attacker may quietly maintain access and send data out while everything appears normal.
 
-TxLens is a simple, low-cost tool that makes outgoing network activity visible. It runs on an ESP32-S3 with a touchscreen, acting as a small Wi-Fi router between your computer and your existing network. It shows where the connected device sends data and how much it sends, giving you a view of that traffic outside the computer itself.
+TxLens is a simple, low-cost tool that makes outgoing network activity visible. It runs on an ESP32-S3 with a touchscreen, acting as a small Wi-Fi router between your computer or phone and your existing network. It shows where the connected device sends data and how much it sends, giving you a view of that traffic outside the device itself. A rootkit can hide network activity from monitoring software running on the compromised device. By observing traffic on separate hardware, TxLens provides a more reliable view of the traffic that passes through it.
 
-TxLens helps you notice unfamiliar destinations and unexpected uploads. It provides visibility into network activity; it cannot determine on its own whether a connection is malicious or detect every kind of compromise.
+![A router connects over Wi-Fi to a portrait ESP32-S3 touchscreen running TxLens Live Traffic, which connects over Wi-Fi to a computer or phone.](assets/txlens-network-diagram.png)
 
 ## A look at the interface
 
