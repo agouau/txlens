@@ -1,0 +1,60 @@
+﻿# ESP-IDF build output and downloaded components
+build/
+build-*/
+managed_components/
+components/.idf/
+.espressif/
+
+# Generated configuration; keep sdkconfig.defaults* in version control
+sdkconfig
+sdkconfig.old
+sdkconfig.*.old
+
+# Keep dependencies.lock for reproducible component versions
+
+# CMake and language server caches
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+install_manifest.txt
+CTestTestfile.cmake
+compile_commands.json
+.cache/
+.clangd/
+.ccls-cache/
+
+# VS Code settings contain local ESP-IDF paths and COM port selection
+/.vscode/settings.json
+
+# Python environments and test output
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Local secrets
+.env
+.env.*
+!.env.example
+
+# Editor temporary files and logs
+*~
+*.swp
+*.swo
+*.bak
+*.tmp
+*.log
+*.user
+*.suo
+
+# OS metadata
+.DS_Store
+.AppleDouble
+.LSOverride
+.directory
+Thumbs.db
+ehthumbs.db
+Desktop.ini

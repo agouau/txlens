@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Device settings</title>
+<style>
+:root{color-scheme:dark;font:16px system-ui,sans-serif;background:#0c151e;color:#dce8ef}*{box-sizing:border-box}body{max-width:600px;margin:0 auto;padding:28px 20px 48px}h1{font-size:28px;margin:8px 0 0}h2{font-size:19px;margin:0 0 8px}p{color:#a8bdcc;line-height:1.55}section{background:#14232f;border:1px solid #2a4152;border-radius:14px;padding:20px;margin:20px 0}label{display:block;margin:18px 0 6px}input:not([type=checkbox]){display:block;width:100%;font:inherit;padding:12px;border:1px solid #466075;border-radius:7px;background:#0c151e;color:inherit}input[type=checkbox]{width:18px;height:18px;vertical-align:middle;margin-right:8px}small{display:block;color:#a8bdcc;line-height:1.5;margin-top:6px}button{font:inherit;font-weight:650;border:0;border-radius:8px;padding:14px 20px;background:#68c7f5;color:#071b29;width:100%;cursor:pointer}button:disabled{opacity:.5;cursor:wait}#message{white-space:pre-wrap;overflow-wrap:anywhere}.error{color:#ffb3a8!important}.success{color:#9fe3ba!important}
+</style>
+<h1>Device settings</h1>
+<form id="pairing"><section><h2>Unlock settings</h2><p>Enter the setup code shown on the device screen, or scan its QR code. The code changes after every restart.</p><label for="setup_password">Setup code</label><input id="setup_password" required type="password" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" autocomplete="one-time-code" spellcheck="false"><button type="submit" style="margin-top:16px">Unlock settings</button><p id="pair_message" role="status"></p></section></form>
+<div id="configuration" hidden>
+<form id="settings">
+<fieldset id="fields" disabled style="border:0;padding:0;margin:0">
+<section><h2>Upstream · STA</h2><p>The 2.4 GHz Wi-Fi network this device connects to.</p>
+<label for="sta_ssid">Network name (SSID)</label><input id="sta_ssid" autocomplete="off" maxlength="32"><small>Leave empty to disable the upstream connection.</small>
+<label for="sta_password">New password</label><input id="sta_password" type="password" autocomplete="new-password" maxlength="63"><small>Leave blank to keep the current password.</small>
+<label><input id="sta_open" type="checkbox">Open network (no password)</label>
+</section>
+<section><h2>Device hotspot · AP</h2><p>The network your downstream device or setup phone joins.</p>
+<label for="ap_ssid">Hotspot name (SSID)</label><input id="ap_ssid" required autocomplete="off" maxlength="32">
+<label for="ap_password">New password</label><input id="ap_password" type="password" autocomplete="new-password" maxlength="63"><small>8–63 bytes. Leave blank to keep the current password.</small>
+</section>
+<label><input id="show" type="checkbox">Show entered passwords</label>
+<p>Saving restarts the device and briefly disconnects clients. If you change the hotspot, reconnect using the hotspot name and password on the device screen. An unreachable upstream network will keep retrying; your new settings stay saved.</p>
+<button id="save" type="submit">Save &amp; restart</button>
+</fieldset></form><p id="message" role="status" aria-live="polite"></p>
+<form id="abuse_settings"><fieldset id="abuse_fields" disabled style="border:0;padding:0;margin:0">
+<section><h2>AbuseIPDB (optional)</h2>
+<p>Query abuse reports when you open an IP's details. Results are discarded when you close the details and are never saved to the IP cache or SD card.</p>
+<p id="abuse_status" role="status">Loading API key status...</p>
+<label for="abuse_key">New API key</label><input id="abuse_key" type="password" autocomplete="new-password" maxlength="128" spellcheck="false" autocapitalize="none"><small>The saved key is not shown. Enter a new key to replace it.</small>
+<label><input id="abuse_remove" type="checkbox">Remove saved key and disable lookup</label>
+<p>Saved on this device. Changes take effect immediately without restarting.</p>
+<button id="abuse_save" type="submit">Save API key</button>
+<p id="abuse_message" role="status" aria-live="polite"></p>
+</section></fieldset></form>
+</div>
+<script>
+const $=id=>document.getElementById(id);let setupPassword='',unlocked=false,restarting=false;
+const bytes=s=>new TextEncoder().encode(s).length;
+function message(text,error=false){$('message').textContent=text;$('message').className=error?'error':'success';}
+function lockSettings(text){
+    unlocked=false;
+    $('configuration').hidden=true;
+    $('pairing').hidden=false;
+    $('fields').disabled=true;
+    $('abuse_fields').disabled=true;
+    $('pair_message').textContent=text;
+    setupPassword='';
+    $('setup_password').value='';
+}
+let requestQueue=Promise.resolve(),nextRequestAt=0;
+function settingsRequest(url,options={}){
+    const password=setupPassword;
+    const request=requestQueue.then(async()=>{
+        for(let attempt=0;;attempt++){
+            const wait=nextRequestAt-performance.now();
+            if(wait>0)await new Promise(resolve=>setTimeout(resolve,wait));
+            let r;
+            try{r=await fetch(url,{...options,headers:{...options.headers,'X-Setup-Password':password}});}
+            finally{nextRequestAt=performance.now()+500;}
+            if(r.status===429&&attempt<2){await r.text();continue;}
+            if(!r.ok){
+                const error=await r.text();
+                if(r.status===403)lockSettings(error);
+                throw Error(error);
+            }
+            return r;
+        }
+    });
+    requestQueue=request.catch(()=>{});
+    return request;
+}
+async function load(initial=false){
+    try{
+        const r=await settingsRequest('/api/settings',{cache:'no-store'});
+        const s=await r.json();
+        unlocked=true;
+        $('pairing').hidden=true;
+        $('configuration').hidden=false;
+        $('abuse_status').textContent=s.abuseipdb_configured?'API key saved. Lookup enabled.':'No API key saved. Lookup disabled.';
+        if(initial){
+            $('sta_ssid').value=s.sta_ssid;
+            $('ap_ssid').value=s.ap_ssid;
+            $('sta_open').checked=!s.sta_has_password;
+            $('sta_password').disabled=$('sta_open').checked;
+            $('fields').disabled=false;
+            $('abuse_fields').disabled=false;
+        }
+    }catch(e){
+        if(initial)lockSettings(e.message);
+        else if(unlocked)message('Connection unavailable. Stay connected to the device hotspot.',true);
+    }
+}
+$('show').onchange=()=>{for(const id of ['sta_password','ap_password'])$(id).type=$('show').checked?'text':'password';};
+$('sta_open').onchange=()=>{$('sta_password').disabled=$('sta_open').checked;};
+$('settings').onsubmit=async e=>{e.preventDefault();const data={sta_ssid:$('sta_ssid').value,ap_ssid:$('ap_ssid').value};if($('sta_open').checked)data.sta_password='';else if($('sta_password').value)data.sta_password=$('sta_password').value;if($('ap_password').value)data.ap_password=$('ap_password').value;
+for(const [key,value]of Object.entries(data)){const n=bytes(value);if(/[\x00-\x1f\x7f]/.test(value)||n>(key.endsWith('ssid')?32:63)||(key==='ap_ssid'&&!n)||(key.endsWith('password')&&n&&n<8)){message('Check '+key.replaceAll('_',' ')+': SSID up to 32 bytes; password 8–63 bytes.',true);return;}}
+$('save').disabled=true;message('Saving...');try{const r=await settingsRequest('/api/settings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});const result=await r.json();restarting=true;$('fields').disabled=true;message(result.message);}catch(err){message('Save could not be confirmed. '+err.message+' If disconnected, check the device screen and reconnect before retrying.',true);$('save').disabled=false;}};
+$('pairing').onsubmit=async e=>{e.preventDefault();setupPassword=$('setup_password').value.trim();if(!/^[0-9]{6}$/.test(setupPassword)){$('pair_message').textContent='Enter the 6-digit code from the device screen.';return;}await load(true);};
+const qrPassword=new URLSearchParams(location.hash.slice(1)).get('password');
+if(location.hash)history.replaceState(null,'',location.pathname+location.search);
+if(qrPassword&&/^[0-9]{6}$/.test(qrPassword)){setupPassword=qrPassword;$('setup_password').value=setupPassword;load(true);}
+setInterval(()=>{if(unlocked&&!restarting)load();},4000);
+$('abuse_remove').onchange=()=>{$('abuse_key').disabled=$('abuse_remove').checked;};
+$('abuse_settings').onsubmit=async e=>{e.preventDefault();const key=$('abuse_remove').checked?'':$('abuse_key').value.trim();const msg=$('abuse_message');msg.className='error';if(!$('abuse_remove').checked&&!key){msg.textContent='Enter an API key, or select Remove to disable lookup.';return;}if(key.length>128||/[^\x21-\x7e]/.test(key)){msg.textContent='API key: up to 128 ASCII characters without spaces.';return;}$('abuse_save').disabled=true;msg.textContent='Saving...';try{const r=await settingsRequest('/api/abuseipdb',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({key})});const result=await r.json();msg.className='success';msg.textContent=result.message;$('abuse_key').value='';$('abuse_remove').checked=false;$('abuse_key').disabled=false;await load();}catch(err){msg.textContent='Save could not be confirmed. '+err.message;}finally{$('abuse_save').disabled=false;}};
+</script></html>
