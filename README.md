@@ -30,7 +30,7 @@ An **ESP32-S3 with 8 MB of PSRAM and more than 4 MB of flash** is recommended, a
 
 1. Clone this repository or download it using GitHub's **Code - Download ZIP**.
 2. Open the project in **Visual Studio Code** with the Espressif ESP-IDF extension and an **ESP-IDF 6.1** environment. A Dev Container configuration is also included.
-3. Adapt the project for your board, then build and flash using the ESP-IDF extension's controls. If embedded development is unfamiliar, an AI coding tool can help.
+3. In the ESP-IDF terminal, run `idf.py set-target esp32s3` to select the chip and regenerate any existing build configuration. Adapt the project for your board, then build and flash using the ESP-IDF extension's controls. If embedded development is unfamiliar, an AI coding tool can help.
 
 The current firmware includes a specific board's display, touch and pin configuration, and defaults to 16 MB of flash. Other boards need corresponding changes to the hardware settings, drivers and flash configuration. Start with [`main/app_config.h`](main/app_config.h) and `sdkconfig.defaults*`.
 
