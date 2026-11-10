@@ -29,8 +29,10 @@ The touchscreen keeps the focus on outgoing traffic, with destination details an
 An **ESP32-S3 with 8 MB of PSRAM and more than 4 MB of flash** is recommended, along with a touchscreen. A **320 × 480** display is a good starting point. Higher resolutions can work, but keeping the display within roughly **480 × 480** is preferable: larger displays increase rendering work and can slow the interface. Upstream Wi-Fi needs to support 2.4 GHz.
 
 1. Clone this repository or download it using GitHub's **Code - Download ZIP**.
-2. Open the project in **Visual Studio Code** with the Espressif ESP-IDF extension and an **ESP-IDF 6.1** environment. A Dev Container configuration is also included.
-3. In the ESP-IDF terminal, run `idf.py set-target esp32s3` to select the chip and regenerate any existing build configuration. Adapt the project for your board, then build and flash using the ESP-IDF extension's controls. If embedded development is unfamiliar, an AI coding tool can help.
+2. Open the project in **Visual Studio Code** with the Espressif ESP-IDF extension installed and an ESP-IDF environment configured. This project was developed with **ESP-IDF 6.1**, but newer versions should also work[*].
+3. In the ESP-IDF terminal, run `idf.py set-target esp32s3` to select the chip and regenerate any existing build configuration. Adapt the project for your board, then build and flash it using the ESP-IDF extension's controls[*].
+
+[*]: If you run into configuration errors, an AI coding tool can help you troubleshoot and resolve them.
 
 The current firmware includes a specific board's display, touch and pin configuration, and defaults to 16 MB of flash. Other boards need corresponding changes to the hardware settings, drivers and flash configuration. Start with [`main/app_config.h`](main/app_config.h) and `sdkconfig.defaults*`.
 
