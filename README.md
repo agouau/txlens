@@ -12,17 +12,21 @@ TxLens is a simple, low-cost tool that makes outgoing network activity visible. 
 
 The touchscreen keeps the focus on outgoing traffic, with destination details and device settings close at hand.
 
-| Start screen | Live traffic #1 | Live traffic #2 |
-| :---: | :---: | :---: |
-| <img src="assets/screenshots/1-0.png" alt="TxLens start screen with connection status" width="200"> | <img src="assets/screenshots/1-1.png" alt="Live outgoing traffic graphs by destination" width="200"> | <img src="assets/screenshots/1-2.png" alt="Traffic list showing domain names and IP addresses" width="200"> |
+| Start screen | Live traffic |
+| :---: | :---: |
+| <img src="assets/screenshots/1-0.png" alt="TxLens start screen with connection status"> | <img src="assets/screenshots/1-1.png" alt="Live outgoing traffic graphs by destination"> |
 
 **TX Traffic** shows destination IP addresses or domain names, when available, alongside live graphs covering the last 60 seconds. It makes bursts of outgoing activity easy to spot.
 
-| Destination details | Settings | Device status |
-| :---: | :---: | :---: |
-| <img src="assets/screenshots/1-3.png" alt="Destination details showing upload volume, ISP, location and reputation information" width="200"> | <img src="assets/screenshots/2.png" alt="Settings screen with a QR code for Wi-Fi configuration" width="200"> | <img src="assets/screenshots/3.png" alt="Device status showing resource usage, SD logging and network information" width="200"> |
+| Destination details | Settings |
+| :---: | :---: |
+| <img src="assets/screenshots/1-3.png" alt="Destination details showing upload volume, ISP, location and reputation information"> | <img src="assets/screenshots/2.png" alt="Settings screen with a QR code for Wi-Fi configuration"> |
 
 **Destination details** show recent upload volume, ISP, organization, ASN and location, with optional AbuseIPDB reputation checks. **Settings** provides access to Wi-Fi configuration, while **Status** shows resource usage, network information and logging status. An optional microSD card stores per-minute traffic logs as CSV files.
+
+| Device status | |
+| :---: | :---: |
+| <img src="assets/screenshots/3.png" alt="Device status showing resource usage, SD logging and network information"> | |
 
 ## Get started
 
